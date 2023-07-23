@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sentiment Analysis Results</title>
+    <!-- Add Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Add Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        .chart-card {
+            width: 100%;
+            margin: 10px auto;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #04293A;
+            color: rgba(238, 238, 237, 0.7);
+            border-radius: 10px;
+        }
+
+        .chart-card h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* Customize the background color */
+        body {
+            background-color: #041C32;
+        }
+    </style>
+</head>
+<<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="chart-card">
+                    <h2>Sentiment Analysis Results</h2>
+                    <canvas id="sentimentChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-card">
+                    <h2>Sentiment Analysis Pie Chart</h2>
+                    <canvas id="sentimentPieChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="chart-card">
+                    <h2>Enter Text for Sentiment Prediction</h2>
+                    <form method="post" action="/predict">
+                        <div class="form-group">
+                            <textarea class="form-control" name="text" rows="4" placeholder="Enter your text here" style="background-color: #DDDDDD;"></textarea>
+                        </div><br>
+                        <button type="submit" class="btn btn-primary" style="background-color:#3C415C;border-style: none;">Predict Sentiment</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        fetch('/sentiment_data').then(response => response.json())
+            .then(sentimentData => {
+                const sentiments = sentimentData.map(entry => entry.sentiment);
+                const counts = sentimentData.map(entry => entry.count);
+
+                const ctx = document.getElementById('sentimentChart').getContext('2d');
+                const chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: sentiments,
+                        datasets: [{
+                            label: 'Sentiment Analysis',
+                            data: counts,
+                            backgroundColor: ['green', 'red', 'blue'],
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: 'rgba(238, 238, 237, 0.7)'
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Extract sentiment and count data for the pie chart
+                const pieLabels = sentimentData.map(entry => entry.sentiment);
+                const pieCounts = sentimentData.map(entry => entry.count);
+
+                // Create the pie chart
+                const pieCtx = document.getElementById('sentimentPieChart').getContext('2d');
+                const pieChart = new Chart(pieCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: pieLabels,
+                        datasets: [{
+                            label: 'Sentiment Analysis',
+                            data: pieCounts,
+                            backgroundColor: ['green', 'red', 'blue'], // You can customize colors here
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: 'rgba(238, 238, 237, 0.7)'
+                                }
+                            }
+                        }
+                    }
+                });
+            });
+    </script>
+</body>
+</html>
